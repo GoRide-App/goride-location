@@ -1,4 +1,5 @@
-﻿using GoRide.Location.Data;
+using GoRide.Location.Data;
+using GoRide.Location.Models;
 using GoRide.Location.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +12,19 @@ builder.Services.AddSwaggerGen();
 // ---- Database (ADO.NET connection factory — see Data/MySqlConnectionFactory.cs) ----
 builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
 
-// ---- HTTP client factory (used by services that call external APIs) ----
+// ---- HTTP client factory (used by RidePlanService to call ORS) ----
 builder.Services.AddHttpClient();
+
+// ---- Options bindings ----
+builder.Services.Configure<OrsOptions>(
+    builder.Configuration.GetSection(OrsOptions.SectionName));
+builder.Services.Configure<ServiceableAreaOptions>(
+    builder.Configuration.GetSection(ServiceableAreaOptions.SectionName));
+builder.Services.Configure<FareOptions>(
+    builder.Configuration.GetSection(FareOptions.SectionName));
+
+// ---- Business-logic services ----
+builder.Services.AddScoped<IRidePlanService, RidePlanService>();
 
 // ---- CORS: allow the Next.js frontend (local dev + Vercel-hosted) to call this API ----
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
@@ -47,3 +59,4 @@ app.Run();
 // Exposes the generated Program class so integration tests can spin up this app
 // in-memory via WebApplicationFactory<Program> later, without any extra setup.
 public partial class Program { }
+
