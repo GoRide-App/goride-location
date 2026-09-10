@@ -20,8 +20,6 @@ builder.Services.Configure<OrsOptions>(
     builder.Configuration.GetSection(OrsOptions.SectionName));
 builder.Services.Configure<ServiceableAreaOptions>(
     builder.Configuration.GetSection(ServiceableAreaOptions.SectionName));
-builder.Services.Configure<FareOptions>(
-    builder.Configuration.GetSection(FareOptions.SectionName));
 
 // ---- Business-logic services ----
 builder.Services.AddScoped<IRidePlanService, RidePlanService>();

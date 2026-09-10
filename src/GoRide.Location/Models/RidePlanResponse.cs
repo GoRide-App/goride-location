@@ -2,19 +2,20 @@ namespace GoRide.Location.Models;
 
 /// <summary>
 /// Response DTO returned by POST /rides/plan on success.
-/// Contains the ORS-calculated road-network distance/duration and the
-/// computed fare estimate based on the configured base fare and per-km rate.
+/// Contains road-network distance/duration from routing provider (ORS/OSRM)
+/// and the route geometry coordinates in object format { lat, lng }.
+/// Fare calculation is deliberately handled by GoRide.Trip / frontend.
 /// </summary>
 public class RidePlanResponse
 {
-    /// <summary>Road-network distance in kilometres (from ORS, metres ÷ 1000).</summary>
+    /// <summary>Road-network distance in kilometres (from routing provider, metres ÷ 1000).</summary>
     public double DistanceKm { get; init; }
 
-    /// <summary>Estimated travel time in minutes (from ORS, seconds ÷ 60).</summary>
+    /// <summary>Estimated travel time in minutes (from routing provider, seconds ÷ 60).</summary>
     public double DurationMinutes { get; init; }
 
-    /// <summary>Fare estimate in PHP = BaseFare + (DistanceKm × RatePerKm).</summary>
-    public decimal FareEstimate { get; init; }
+    /// <summary>Route geometry coordinates in object format [{ lat, lng }, ...].</summary>
+    public List<RouteCoordinate> Coordinates { get; init; } = new();
 
     /// <summary>Human-readable label echoing back the pickup coordinates.</summary>
     public string PickupLabel { get; init; } = string.Empty;
