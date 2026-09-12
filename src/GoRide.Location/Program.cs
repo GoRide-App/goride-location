@@ -20,21 +20,32 @@ builder.Services.Configure<OrsOptions>(
     builder.Configuration.GetSection(OrsOptions.SectionName));
 builder.Services.Configure<ServiceableAreaOptions>(
     builder.Configuration.GetSection(ServiceableAreaOptions.SectionName));
-builder.Services.Configure<FareOptions>(
-    builder.Configuration.GetSection(FareOptions.SectionName));
 
 // ---- Business-logic services ----
 builder.Services.AddScoped<IRidePlanService, RidePlanService>();
 
 // ---- CORS: allow the Next.js frontend (local dev + Vercel-hosted) to call this API ----
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? Array.Empty<string>();
+
+var origins = configuredOrigins
+    .Where(o => !string.IsNullOrWhiteSpace(o) && !o.Contains("${"))
+    .ToList();
+
+if (!origins.Contains("http://localhost:3000", StringComparer.OrdinalIgnoreCase))
+{
+    origins.Add("http://localhost:3000");
+}
+if (!origins.Contains("http://127.0.0.1:3000", StringComparer.OrdinalIgnoreCase))
+{
+    origins.Add("http://127.0.0.1:3000");
+}
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.WithOrigins(origins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
