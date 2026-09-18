@@ -23,6 +23,8 @@ builder.Services.Configure<ServiceableAreaOptions>(
 
 // ---- Business-logic services ----
 builder.Services.AddScoped<IRidePlanService, RidePlanService>();
+builder.Services.AddScoped<IDriverLocationRepository, DriverLocationRepository>();
+builder.Services.AddScoped<IDriverLocationService, DriverLocationService>();
 
 // ---- CORS: allow the Next.js frontend (local dev + Vercel-hosted) to call this API ----
 var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
@@ -53,6 +55,22 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// ---- Ensure the driver_locations table exists (no migration tool on this service —
+// see GoRide.Location.csproj — so schema is created idempotently on startup). A
+// failure here is logged but doesn't stop the app: /rides/plan doesn't need this table.
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var repository = scope.ServiceProvider.GetRequiredService<IDriverLocationRepository>();
+        await repository.EnsureSchemaAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Failed to ensure driver_locations schema exists.");
+    }
+}
 
 // ---- Swagger UI (dev only — don't expose this publicly in production) ----
 if (app.Environment.IsDevelopment())
