@@ -1,17 +1,14 @@
 -- goride-location schema
 --
--- This is a manual copy of the same DDL the app runs automatically on every
--- startup (GoRide.Location.Data.DriverLocationRepository.EnsureSchemaAsync,
--- called from Program.cs) — this service has no migration tool, so schema is
--- kept idempotent (CREATE TABLE IF NOT EXISTS) rather than versioned.
+-- Run this against the location_db database using the Azure MySQL server's ADMIN
+-- login. The service's own user (location_svc) is scoped to reading and writing
+-- location_db and normally can't create tables.
 --
--- You only need to run this by hand if you want the table to exist before
--- the app's first successful DB connection (e.g. to inspect it, or because
--- credentials weren't working yet when the app last started). Otherwise,
--- just fixing the DB credentials and starting the service is enough.
---
--- Run against the location_db database on the Azure MySQL server, e.g.:
---   mysql -h goride-dbv2.mysql.database.azure.com -P 3306 -u location_svc -p location_db < scripts/schema.sql
+-- The app also tries this same DDL on startup
+-- (GoRide.Location.Data.DriverLocationRepository.EnsureSchemaAsync, called from
+-- Program.cs). It only succeeds if the service user has CREATE rights; otherwise
+-- it logs "Failed to ensure driver_locations schema exists" and carries on, so
+-- running this script by hand is the reliable path. Safe to re-run.
 
 CREATE TABLE IF NOT EXISTS driver_locations (
     driver_id  VARCHAR(64)  NOT NULL PRIMARY KEY,
