@@ -43,6 +43,11 @@ if (!origins.Contains("http://127.0.0.1:3000", StringComparer.OrdinalIgnoreCase)
     origins.Add("http://127.0.0.1:3000");
 }
 
+if (!origins.Contains("https://goride-my-client.vercel.app", StringComparer.OrdinalIgnoreCase))
+{
+    origins.Add("https://goride-my-client.vercel.app");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendPolicy", policy =>
