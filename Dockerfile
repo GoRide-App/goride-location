@@ -10,7 +10,7 @@ RUN dotnet restore src/GoRide.Location/GoRide.Location.csproj
 
 COPY src/GoRide.Location/ src/GoRide.Location/
 WORKDIR /src/src/GoRide.Location
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
 
 # ---- Stage 2: Run ----
 # Small runtime-only image — no SDK, no source code, no build tools.
